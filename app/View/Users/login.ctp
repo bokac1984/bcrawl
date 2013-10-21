@@ -1,3 +1,9 @@
-<?php echo $this->Linkedin->signin(__('Sign in with Linkedin')); ?>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-
+<?php
+echo $this->Html->link("LinkedIn",
+        array(
+            'controller'=>'users',
+            'action'=>'LinkedinLogin'
+        ), 
+        array('escape' => true)
+        );
+?>

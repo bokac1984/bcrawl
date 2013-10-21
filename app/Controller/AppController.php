@@ -34,37 +34,46 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller {
     	
     public $components = array(
-        'Auth',
         'Session',
         'RequestHandler',
         'Cookie',
         //'DebugKit.Toolbar',
-        'Security'
+        'Security',
+        'Linkedin.Linkedin' => array('key' => 'be9ot0r9emr5','secret' => 'napYjSziilUJZq60',)
     );
     
     public $helpers = array(
         'Html', 
         'Form', 
         'Session', 
-        'Js', 
-        'SocialSignIn.Linkedin' => array(
-            'api_key' => 'be9ot0r9emr5',
-            'redirect_uri' => 'http://bcrawl/users/index',
-        )
+        'Js'
     );
     
-    
-    
     public function beforeFilter() {
-        $this->Auth->authenticate = array(
-            'SocialSignIn.Linkedin' => array(
-                'userModel' => 'User',
-                'api_key' => 'be9ot0r9emr5',
-                'secret_key' => 'napYjSziilUJZq60',
-                //'session' => 'Auth.LinkedinAuthenticate.User',
-            )
-        );
+        $this->set('connected', true);
+        $this->set('logout', array(
+                'prefix' => null,
+                'plugin' => null,
+                'controller' => 'users',
+                'action' => 'logout'
+            ));
+//        if (!$this->Linkedin->isConnected()) {
+//            $this->Linkedin->connect(array(
+//                'prefix' => null,
+//                'plugin' => null,
+//                'controller' => 'users',
+//                'action' => 'linkedcallback'
+//            ));
+//                    $this->set('logout', array(
+//                'prefix' => null,
+//                'plugin' => null,
+//                'controller' => 'users',
+//                'action' => 'login'
+//            ));
+//           $this->set('connected', false); 
+//        }
+//        
     }
-    
+//    
 
 }

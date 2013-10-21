@@ -29,6 +29,34 @@ class UsersController extends AppController {
             
             
         }
+        
+        public function logout() {
+            
+            $this->Session->destroy();
+            return $this->redirect(array('action' => 'index'));
+        }
+        
+public function linkedcallback() {
+    $this->Linkedin->authorize( array('action'=>'LinkedinLogin'));
+}
+public function LinkedinLogin() {
+    $linkedinProfile = $this->Linkedin->call('people/~',
+                                                 array(
+                                                      'id',
+                                                      'picture-url',
+                                                      'first-name', 'last-name','email-address', 'summary', 'specialties', 'associations', 'honors', 'interests', 'twitter-accounts',
+                                                      'positions' => array('title', 'summary', 'start-date', 'end-date', 'is-current', 'company'),
+                                                      'educations',
+                                                      'certifications',
+                                                      'skills' => array('id', 'skill', 'proficiency', 'years'),
+                                                      'recommendations-received',
+                                                      'main-address',
+                                                      'phone-numbers',
+                                                      'location:(name)',
+                                                      'public-profile-url'
+                                                 ));
+    //debug($linkedinProfile);
+}
 
 /**
  * view method

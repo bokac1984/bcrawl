@@ -8,30 +8,37 @@
  * @author Patrick Brouwer <patrick@inlet.nl>
  */
 
-App::import('Vendor', 'Linkedin.oauth', array('file' => 'OAuth' . DS . 'oauth_consumer.php'));
-
-class LinkedinComponent extends Object {
+App::import('Vendor', 'Linkedin.Oauth', array('file' => 'OAuth' . DS . 'OAuthClient.php'));
+class LinkedinComponent extends Component {
 
 	// PATH DECLARATIONS
 	private $authPath = 'https://api.linkedin.com/';
 	private $apiPath = 'http://api.linkedin.com/v1/';
 	private $requestToken = 'uas/oauth/requestToken';
-  
-    /**
-    * Permission scope parameters.  Seperate by a space ' '.
-    */
-	private $scope = 'r_basicprofile r_emailaddress r_contactinfo';
 	private $accessToken = 'uas/oauth/accessToken';
 	private $authorizeToken = 'uas/oauth/authorize?oauth_token=';
-	
+	//
 	private $sessionRequest = 'linkedin_request_token';
 	private $sessionAccess = 'linkedin_access_token';
-	
-	public $key;
-	public $secret;
+	//
+	private $key;
+	private $secret;
 	private $controller;
+	private $scope = 'r_fullprofile,r_emailaddress,r_network,r_contactinfo,w_messages';
 
 	var $components = array('Session');
+
+	/**
+	 * construct plugin with supplied key and secret
+	 *
+	 * @param $controller
+	 * @param array $settings
+	 */
+	public function __construct(ComponentCollection $collection, $settings = array()) {
+		parent::__construct($collection, $settings);
+		$this->key = $settings['key'];
+		$this->secret = $settings['secret'];
+	}
 
 	/**
 	 * Initialize plugin with supplied key and secret
@@ -39,10 +46,8 @@ class LinkedinComponent extends Object {
 	 * @param $controller
 	 * @param array $settings
 	 */
-	public function initialize(&$controller, $settings = array()) {
-		$this->controller = $controller;
-		$this->key = $settings['key'];
-		$this->secret = $settings['secret'];
+	function initialize(&$Controller){
+		$this->controller = $Controller;
 	}
 
 	/**
@@ -55,60 +60,55 @@ class LinkedinComponent extends Object {
 			$redirectUrl = array('controller' => strtolower($this->controller->name), 'action' => 'linkedin_connect_callback');
 		}
 
-		$parameters = array();
-		if ($this->scope) {
-			$parameters['scope'] = $this->scope;
-		}
-		
 		$consumer = $this->_createConsumer();
-
-		// 'POST', $parameters are added by JustAdam: Fix so that you can use member permissions.
-		$requestToken = $consumer->getRequestToken($this->authPath . $this->requestToken, Router::url($redirectUrl, true), 'POST', $paramaters);
-		$this->Session->write($this->sessionRequest, serialize($requestToken));
-
+		$requestToken = $consumer->getRequestToken($this->authPath . $this->requestToken, Router::url($redirectUrl, true),'POST',array('scope'=>$this->scope));
+		$this->Session->write($this->sessionRequest, $requestToken);
 		$this->controller->redirect($this->authPath . $this->authorizeToken . $requestToken->key);
 	}
 
 	/**
 	 * Do authorization..
-	 * 
+	 *
 	 * @param null $redirectUrl (optionally) if not set the default callback 'linkedin_connected' will be triggered
 	 */
 	public function authorize($redirectUrl = null) {
 		if (!isset($redirectUrl)) {
 			$redirectUrl = array('controller' => strtolower($this->controller->name), 'action' => 'linkedin_authorize_callback');
 		}
-		
-		$requestToken = unserialize($this->Session->read($this->sessionRequest));
+
+		$requestToken = $this->Session->read($this->sessionRequest);
 		$consumer = $this->_createConsumer();
 		$accessToken = $consumer->getAccessToken($this->authPath . $this->accessToken, $requestToken);
-		$this->Session->write($this->sessionAccess, serialize($accessToken));
+
+		$this->Session->write($this->sessionAccess, $accessToken);
 		$this->controller->redirect($redirectUrl);
 	}
 
 	/**
 	 * API call to GET linkedin data.
-	 * 
+	 *
 	 * @param $path
 	 * @param $args
 	 * @return response
 	 */
 	public function call($path, $args) {
-		$accessToken = unserialize($this->Session->read($this->sessionAccess));
+		$accessToken = $this->Session->read($this->sessionAccess);
 		if ($accessToken === null) {
 			trigger_error('Linkedin: accesToken is empty', E_USER_NOTICE);
 		}
-		$path .= $this->_fieldSelectors($args);
+		//$path .= $this->_fieldSelectors($args);
 		$consumer = $this->_createConsumer();
+                //$path .= ':(companies:(id,website-url))?keywords=law&count=2&start=5';
+                debug($this->apiPath . $path);
 		$result = $consumer->get($accessToken->key, $accessToken->secret, $this->apiPath . $path);
+		$response1 = simplexml_load_string($result);
 		//$responseHeaders = $consumer->getResponseHeader();
-		$response = $this->_decode($result);
+		$response = $this->_decode($response1);
 		if (isset($response['error'])) {
 			throw new Exception('Linkedin: '.$response['error']['message']);
 		}
 		return $response;
 	}
-
 	/**
 	 * API call to POST data
 	 *
@@ -119,24 +119,24 @@ class LinkedinComponent extends Object {
 	 */
 	public function send($path, $data, $type = 'json') {
 		switch ($type) {
-			
+				
 			case 'json':
 				$contentType = 'application/json';
 				if (!is_string($data)) {
 					$data = json_encode($data);
 				}
 				break;
-				
+
 			case 'xml':
 				$contentType = 'text/xml';
 				break;
-			
+					
 			default:
 				throw new Exception('Type: "'.$type.'" not supported');
-		}		
+		}
 		$accessToken = $this->Session->read($this->sessionAccess);
 		$consumer = $this->_createConsumer();
-		$responseText = $consumer->postRaw($accessToken->key, $accessToken->secret, $this->apiPath . $path, $data, $contentType);
+		$responseText = $consumer->post($accessToken->key, $accessToken->secret, $this->apiPath . $path, $data, $contentType);
 		$response = $this->_decode($responseText);
 		if (isset($response['error'])) {
 			throw new Exception('Linkedin: '.$response['error']['message']);
@@ -156,11 +156,11 @@ class LinkedinComponent extends Object {
 
 	/**
 	 * Create a valid consumer which provides an API
-	 * 
+	 *
 	 * @return OAuth_Consumer
 	 */
 	private function _createConsumer() {
-		return new OAuth_Consumer($this->key, $this->secret);
+		return new OAuthClient($this->key, $this->secret);
 	}
 
 	/**
@@ -182,12 +182,13 @@ class LinkedinComponent extends Object {
 			case 'application/xml':
 			case 'application/atom+xml':
 			case 'application/rss+xml':
-				App::import('Core', 'Xml');
+				App::uses('Xml', 'Utility');
 				$Xml = new Xml($response);
-				$response = $Xml->toArray(false); // Send false to get separate elements
-				$Xml->__destruct();
+				$response = $Xml->toArray($response); // Send false to get separate elements
+				//$Xml->__destruct();
 				$Xml = null;
 				unset($Xml);
+				//	$response = $this->xml_to_array($response);
 				break;
 			case 'application/json':
 			case 'text/javascript':
@@ -218,6 +219,38 @@ class LinkedinComponent extends Object {
 			$result .= ':(' . $fields . ')';
 		}
 		return $result;
+	}
+
+	//change response to xml
+	public static function xml_to_array($xml) {
+		$parser = xml_parser_create();
+		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
+		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
+		if(!xml_parse_into_struct($parser, $xml, $tags)) {
+			throw new LinkedInException('Could not parse the passed XML.');
+		}
+		xml_parser_free($parser);
+		 
+		$elements = array();
+		$stack    = array();
+		foreach($tags as $tag) {
+			$index = count($elements);
+			if($tag['type'] == 'complete' || $tag['type'] == 'open') {
+				$elements[$tag['tag']]               = array();
+				$elements[$tag['tag']]['attributes'] = (array_key_exists('attributes', $tag)) ? $tag['attributes'] : NULL;
+				$elements[$tag['tag']]['content']    = (array_key_exists('value', $tag)) ? $tag['value'] : NULL;
+				if($tag['type'] == 'open') {
+					$elements[$tag['tag']]['children'] = array();
+					$stack[count($stack)] = &$elements;
+					$elements = &$elements[$tag['tag']]['children'];
+				}
+			}
+			if($tag['type'] == 'close') {
+				$elements = &$stack[count($stack) - 1];
+				unset($stack[count($stack) - 1]);
+			}
+		}
+		return $elements;
 	}
 
 }
