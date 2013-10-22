@@ -1,5 +1,7 @@
 <?php
 App::uses('AppModel', 'Model');
+App::uses('simple_html_dom', 'Lib');
+
 /**
  * SearchResult Model
  *
@@ -83,5 +85,19 @@ class SearchResult extends AppModel {
 			'counterQuery' => ''
 		)
 	);
-
+        public function getContacts($id, $website)
+        {
+            if(!$this->exists($id))
+            {
+                throw new NotFoundException(__('invalid client id'));
+            }
+            
+            $this->id = $id;
+            $dom = file_get_html($website);
+            
+            foreach($dom->find('a') as $a)
+            {
+                debug($a->href);
+            }
+        }
 }
