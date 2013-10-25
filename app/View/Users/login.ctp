@@ -2,7 +2,7 @@
 echo $this->Html->link("LinkedIn",
         array(
             'controller'=>'users',
-            'action'=>'LinkedinLogin'
+            'action'=>'dashboard'
         ), 
         array('escape' => true)
         );
