@@ -1,45 +1,18 @@
 <?php
-/**
- * Application level Controller
- *
- * This file is application-wide controller file. You can put all
- * application-wide controller-related methods here.
- *
- * PHP 5
- *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Controller
- * @since         CakePHP(tm) v 0.2.9
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
- */
+
 App::uses('Controller', 'Controller');
 
-/**
- * Application Controller
- *
- * Add your application-wide methods in the class below, your controllers
- * will inherit them.
- *
- * @package		app.Controller
- * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
- */
 class AppController extends Controller {
     	
     public $components = array(
         'Session',
         'RequestHandler',
         'Cookie',
-        //'DebugKit.Toolbar',
         'Security',
-        'Linkedin.Linkedin' => array('key' => 'be9ot0r9emr5','secret' => 'napYjSziilUJZq60',)
+        'Linkedin.Linkedin' => array(
+            'key' => 'be9ot0r9emr5',
+            'secret' => 'napYjSziilUJZq60'
+        )
     );
     
     public $helpers = array(
@@ -50,30 +23,25 @@ class AppController extends Controller {
     );
     
     public function beforeFilter() {
-        $this->set('connected', true);
-        $this->set('logout', array(
-                'prefix' => null,
-                'plugin' => null,
-                'controller' => 'users',
-                'action' => 'logout'
-            ));
 //        if (!$this->Linkedin->isConnected()) {
 //            $this->Linkedin->connect(array(
 //                'prefix' => null,
 //                'plugin' => null,
 //                'controller' => 'users',
-//                'action' => 'linkedcallback'
+//                'action' => 'index'
 //            ));
-//                    $this->set('logout', array(
-//                'prefix' => null,
-//                'plugin' => null,
-//                'controller' => 'users',
-//                'action' => 'login'
-//            ));
-//           $this->set('connected', false); 
 //        }
-//        
+//        if (!$this->Linkedin->isConnected() ) {
+//            if ($this->request->params['action'] != "login"
+//                  )
+//                $this->redirect(array('controller' => 'users', 'action' => 'login'));
+//        }
+//        if (!$this->Linkedin->isConnected()) {) && $this->request->params['action'] == "login"
+//            $this->set('connected', true);
+//        } else {
+//            $this->set('connected', false);
+//            debug($this->request->params);exit();
+////            $this->redirect(array('controller' => 'users', 'action' => 'login'));
+//        }    
     }
-//    
-
 }
