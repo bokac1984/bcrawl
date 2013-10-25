@@ -21,6 +21,7 @@ class SearchResultsController extends AppController {
  * @return void
  */
 	public function index() {
+        $this->SearchResult->getContacts(2, 'http://www.burnhamlawgroup.com');
 		$this->SearchResult->recursive = 0;
 		$this->set('searchResults', $this->Paginator->paginate());
 	}
