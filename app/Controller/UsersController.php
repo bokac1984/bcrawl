@@ -37,18 +37,18 @@ class UsersController extends AppController {
     }
 
     public function linkedcallback() {
-        $this->Linkedin->authorize(array('action' => 'index'));
+        $this->Linkedin->authorize(array('action' => 'dashboard'));
     }
 
     public function dashboard() {
-//        if (!$this->Linkedin->isConnected()) {
-//            $this->Linkedin->connect(array(
-//                'prefix' => null,
-//                'plugin' => null,
-//                'controller' => 'users',
-//                'action' => 'linkedcallback'
-//            ));
-//        }
+        if (!$this->Linkedin->isConnected()) {
+            $this->Linkedin->connect(array(
+                'prefix' => null,
+                'plugin' => null,
+                'controller' => 'users',
+                'action' => 'linkedcallback'
+            ));
+        }
          $linkedinProfile = $this->Linkedin->call('people/~',
                                                  array(
                                                       'id',
