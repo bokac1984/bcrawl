@@ -23,6 +23,7 @@ class UsersController extends AppController {
      * @return void
      */
     public function index() {
+        pr($_SESSION);
         $this->User->recursive = 0;
         $this->set('users', $this->Paginator->paginate());
     }
@@ -48,15 +49,14 @@ class UsersController extends AppController {
                 'controller' => 'users',
                 'action' => 'linkedcallback'
             ));
+        } else {
+            $linkedinProfile = $this->Linkedin->call('people/~', array(
+                'id',
+                'email-address',
+                    ), "");
+            $this->Session->write('email', $linkedinProfile['person']['email-address']);
+            return $this->redirect(array('action' => 'index'));
         }
-         $linkedinProfile = $this->Linkedin->call('people/~',
-                                                 array(
-                                                      'id',
-                                                      'email-address',
-                                                     ),"");
-         
-//        $companes = $this->Linkedin->getCompanySearchResult("law", 1);
-        debug($linkedinProfile);
     }
 
     /**

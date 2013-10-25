@@ -58,8 +58,31 @@ class SearchesController extends AppController {
 		$users = $this->Search->User->find('list');
 		$this->set(compact('users'));
 	}
+        
+        /**
+         * ajax function to create search
+         */
+        public function create() {
+            $this->autoRender = false;
+            if ($this->request->is('ajax')){
+                $response = array();
+                if(!$this->connectedLinkedin) {
+                    echo json_encode(array('message' => 'Not connected to Linkedin', 'success' => false));
+                } else {
+                    $this->request->data['Search']['user_id'] = 1;
+                    if ($this->Search->save($this->request->data)){
+                        $searchId = $this->Search->getLastInsertID();
+                                
+                        $reposnose['message'] = $this->Linkedin->getCompanySearchResult($this->request->data['Search']['link'], 0);
+                        $this->Search->SearchResult->saveSearchResults($searchId, $reposnose['message']);
+                        $reposnose['success'] = true;
+                        echo json_encode($reposnose); 
+                    }
+                }
+            }
+        }
 
-/**
+        /**
  * edit method
  *
  * @throws NotFoundException

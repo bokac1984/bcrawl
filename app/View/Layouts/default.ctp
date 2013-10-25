@@ -36,18 +36,14 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 		echo $this->fetch('css');
 		echo $this->fetch('script');
 	?>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
 <body>
 	<div id="container">
 		<div id="header">
 			<h1>
                         <?php 
-//                        if (true == $connected) {
-//                            echo $this->Html->link("Logout", $logout, array('escape' => false));
-//                        } else {
-//                            echo $this->Html->link("Logout",$logout,array('escape' => false));
-//                        }
-                        echo $connected == true ? $this->Html->link("Logout", array('controller' => 'users', 'action' => 'logout'), array('escape' => false)) : $this->Html->link("Login",array('controller' => 'users', 'action' => 'login'),array('escape' => false)); 
+                        echo $connected == true ? $this->Html->link("Disconnect Linkedin", array('controller' => 'users', 'action' => 'logout'), array('escape' => false)) : $this->Html->link("Connect Linkedin",array('controller' => 'users', 'action' => 'login'),array('escape' => false)); 
                         ?>
                         </h1>
 		</div>
@@ -66,6 +62,7 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 			?>
 		</div>
 	</div>
+        <?php echo $this->Html->script('common'); ?>
 	<?php echo $this->element('sql_dump'); ?>
 </body>
 </html>
