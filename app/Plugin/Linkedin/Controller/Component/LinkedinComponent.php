@@ -28,7 +28,7 @@ class LinkedinComponent extends Component {
     private $key;
     private $secret;
     private $controller;
-    private $scope = 'r_fullprofile,r_emailaddress,r_network,r_contactinfo,w_messages';
+    private $scope = 'r_emailaddress';
     var $components = array('Session');
 
     /**
@@ -64,7 +64,6 @@ class LinkedinComponent extends Component {
         }
 
         $consumer = $this->_createConsumer();
-        debug($consumer);
         $requestToken = $consumer->getRequestToken($this->authPath . $this->requestToken, Router::url($redirectUrl, true), 'POST', array('scope' => $this->scope));
         $this->Session->write($this->sessionRequest, $requestToken);
         $this->controller->redirect($this->authPath . $this->authorizeToken . $requestToken->key);
@@ -290,6 +289,10 @@ class LinkedinComponent extends Component {
                 'start' => $start
             )
         );
+    }
+    
+    public function getToken() {
+        return $this->sessionAccess;
     }
 
 }

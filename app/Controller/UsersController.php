@@ -37,20 +37,26 @@ class UsersController extends AppController {
     }
 
     public function linkedcallback() {
-        $this->Linkedin->authorize(array('action' => 'dashboard'));
+        $this->Linkedin->authorize(array('action' => 'index'));
     }
 
     public function dashboard() {
-        if (!$this->Linkedin->isConnected()) {
-            $this->Linkedin->connect(array(
-                'prefix' => null,
-                'plugin' => null,
-                'controller' => 'users',
-                'action' => 'linkedcallback'
-            ));
-        }
-//        $linkedinProfile = $this->Linkedin->getCompanySearchResult("law", 1);
-//        debug($linkedinProfile);
+//        if (!$this->Linkedin->isConnected()) {
+//            $this->Linkedin->connect(array(
+//                'prefix' => null,
+//                'plugin' => null,
+//                'controller' => 'users',
+//                'action' => 'linkedcallback'
+//            ));
+//        }
+         $linkedinProfile = $this->Linkedin->call('people/~',
+                                                 array(
+                                                      'id',
+                                                      'email-address',
+                                                     ),"");
+         
+//        $companes = $this->Linkedin->getCompanySearchResult("law", 1);
+        debug($linkedinProfile);
     }
 
     /**
