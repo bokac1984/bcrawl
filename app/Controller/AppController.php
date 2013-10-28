@@ -4,17 +4,7 @@ App::uses('Controller', 'Controller');
 
 class AppController extends Controller {
     
-    //public $connectedLinkedin;
-    	
-    /*public $components = array(
-        'Session',
-        'RequestHandler',
-        'Cookie',
-        'Linkedin.Linkedin' => array(
-            'key' => 'be9ot0r9emr5',
-            'secret' => 'napYjSziilUJZq60'
-        )
-    );*/
+    public $inConnected;
     
     public $helpers = array(
         'Html', 
@@ -22,45 +12,59 @@ class AppController extends Controller {
         'Session', 
         'Js'
     );
-	 public $components = array(
+    public $components = array(
         'Acl',
         'Auth' => array(
             'authorize' => array(
                 'Actions' => array('actionPath' => 'controllers')
             )
         ),
-        'Session'
+        'Session',
+        'RequestHandler',
+        'Cookie',
+        'Linkedin.Linkedin' => array(
+            'key' => 'be9ot0r9emr5',
+            'secret' => 'napYjSziilUJZq60'
+        )
     );
-    //public $helpers = array('Html', 'Form', 'Session');
 
     public function beforeFilter() {
         //Configure AuthComponent
-        $this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
-        $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
-        $this->Auth->loginRedirect = array('controller' => 'posts', 'action' => 'add');
-		$this->Auth->allow('display');
+        $this->Auth->autoRedirect = false;
+        $this->Auth->loginAction = array(
+                'prefix' => null,
+                'plugin' => null,
+                'controller' => 'users',
+                'action' => 'login'
+            );
+        $this->Auth->logoutRedirect = array(
+                'prefix' => null,
+                'plugin' => null,
+                'controller' => 'users',
+                'action' => 'login'
+            );
+        $this->Auth->authError = __('Not allowed');
+        $this->Auth->loginError = __('Invalid Username or Password entered, please try again.');
+
+        
+        $this->Cookie->name = Configure::read('Website.cookie.name');
+        $this->checkCookie();
+        
+        $this->inConnected = $this->checkLinkedinConnection();
+        $this->set('inConnected', $this->inConnected);
+    }
+
+    protected function checkCookie() {
+        if ($this->Auth->user() == null) {
+            $user = $this->Cookie->read('User');
+            
+            if (!empty($user) && $this->Auth->login($user)) {
+                $this->redirect($this->Auth->redirect());
+            }
+        }
     }
     
-//    public function beforeFilter() {
-//        if (!$this->Linkedin->isConnected()) {
-//            $this->Linkedin->connect(array(
-//                'prefix' => null,
-//                'plugin' => null,
-//                'controller' => 'users',
-//                'action' => 'index'
-//            ));
-//        }
-//        if (!$this->Linkedin->isConnected() ) {
-//            if ($this->request->params['action'] != "login"
-//                  )
-//                $this->redirect(array('controller' => 'users', 'action' => 'login'));
-//        }
-//        if (!$this->Linkedin->isConnected()) {) && $this->request->params['action'] == "login"
-//            $this->set('connected', true);
-//        } else {
-//            $this->set('connected', false);
-//            debug($this->request->params);exit();
-////            $this->redirect(array('controller' => 'users', 'action' => 'login'));
-//        }    
-//   }
+    public function checkLinkedinConnection() {
+        return $this->Linkedin->isConnected();
+    }
 }
