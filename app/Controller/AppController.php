@@ -4,7 +4,7 @@ App::uses('Controller', 'Controller');
 
 class AppController extends Controller {
     
-    public $connectedLinkedin;
+    //public $connectedLinkedin;
     	
     /*public $components = array(
         'Session',
