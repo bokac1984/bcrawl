@@ -5,11 +5,12 @@
 	<?php
 		echo $this->Form->input('name');
 		echo $this->Form->input('link');
-		echo $this->Form->input('crawled');
-		echo $this->Form->input('user_id');
+                echo $this->Form->button('Submit Search', array(
+                    'id' => 'create-search'
+                ));
 	?>
 	</fieldset>
-<?php echo $this->Form->end(__('Submit')); ?>
+<?php echo $this->Form->end(); ?>
 </div>
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>

@@ -3,12 +3,13 @@
 App::uses('Controller', 'Controller');
 
 class AppController extends Controller {
+    
+    public $connectedLinkedin;
     	
     /*public $components = array(
         'Session',
         'RequestHandler',
         'Cookie',
-        'Security',
         'Linkedin.Linkedin' => array(
             'key' => 'be9ot0r9emr5',
             'secret' => 'napYjSziilUJZq60'

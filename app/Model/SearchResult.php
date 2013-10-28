@@ -236,4 +236,10 @@ class SearchResult extends AppModel {
 		// Absolute URL is ready!
 		return $scheme.'://'.$abs;
 	}
+        
+        public function saveSearchResults($search_id, $companies = array()) {
+            if (is_array($companies)) {
+                debug($companies['company-search']['companies']);
+            }
+        }
 }
