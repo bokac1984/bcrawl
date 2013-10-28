@@ -4,8 +4,13 @@ class CrawlerShell extends AppShell {
 	
     public function main() {
 		$first = $this->SearchResult->find('first', array('conditions' => array( 'SearchResult.crawled' => 0)));
-        
-		$this->out(print_r($first));
+        $id = $first['SearchResult']['id'];
+		$website = $first['SearchResult']['website'];
+		
+		
+		
+		$this->out(print_r($id));
+		$this->out(print_r($website));
     }
 }
 ?>

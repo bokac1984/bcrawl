@@ -81,8 +81,7 @@ class SearchResult extends AppModel {
 		$twitter = array();
 		$phones = array();
 		$emails = array();
-		
-		debug($contactPages);
+				
 		foreach($contactPages as $page)
 		{
 			$content = file_get_contents($page);
@@ -95,7 +94,7 @@ class SearchResult extends AppModel {
 			$dom->load($content);
 
 			$links = $dom->find('a, area');
-			echo 'lniks a:', count($links);
+			
 			foreach($links as $a)
 			{
 				if(stripos($a->href, 'facebook') !== FALSE)
@@ -109,11 +108,19 @@ class SearchResult extends AppModel {
 			
 			
 		}
-		debug($facebook);
-		debug($twitter);
-		debug($phones);
-		debug($emails);
+		$facebookS = implode(';', $facebook);
+		$twitterS = implode(';', $twitter);
+		$phonesS = implode(';', $phones);
+		$emailsS = implode(';', $emails);
 		
+		$data = array('SearchResult' => array(
+			'id' => $id,
+			'phone' => $phonesS,
+			'email' => $emailsS,
+			'facebook' => $facebookS,
+			'twitter' => $twitterS
+		));
+		$this->save($data);
 	}
 	public function findPhones($text)
 	{
@@ -188,7 +195,6 @@ class SearchResult extends AppModel {
 
 			}
 		}
-		//debug($contactPages);
 		$dom->clear();
 		unset($dom);
 		return $contactPages;

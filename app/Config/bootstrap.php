@@ -92,7 +92,7 @@ Configure::write('Dispatcher.filters', array(
 	'AssetDispatcher',
 	'CacheDispatcher'
 ));
-
+CakePlugin::load('AclExtras');
 /**
  * Configures default file logging options
  */

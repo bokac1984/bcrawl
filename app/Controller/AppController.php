@@ -4,7 +4,7 @@ App::uses('Controller', 'Controller');
 
 class AppController extends Controller {
     	
-    public $components = array(
+    /*public $components = array(
         'Session',
         'RequestHandler',
         'Cookie',
@@ -13,7 +13,7 @@ class AppController extends Controller {
             'key' => 'be9ot0r9emr5',
             'secret' => 'napYjSziilUJZq60'
         )
-    );
+    );*/
     
     public $helpers = array(
         'Html', 
@@ -21,8 +21,26 @@ class AppController extends Controller {
         'Session', 
         'Js'
     );
-    
+	 public $components = array(
+        'Acl',
+        'Auth' => array(
+            'authorize' => array(
+                'Actions' => array('actionPath' => 'controllers')
+            )
+        ),
+        'Session'
+    );
+    //public $helpers = array('Html', 'Form', 'Session');
+
     public function beforeFilter() {
+        //Configure AuthComponent
+        $this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
+        $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
+        $this->Auth->loginRedirect = array('controller' => 'posts', 'action' => 'add');
+		$this->Auth->allow('display');
+    }
+    
+//    public function beforeFilter() {
 //        if (!$this->Linkedin->isConnected()) {
 //            $this->Linkedin->connect(array(
 //                'prefix' => null,
@@ -43,5 +61,5 @@ class AppController extends Controller {
 //            debug($this->request->params);exit();
 ////            $this->redirect(array('controller' => 'users', 'action' => 'login'));
 //        }    
-    }
+//   }
 }

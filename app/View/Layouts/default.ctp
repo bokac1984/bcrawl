@@ -47,7 +47,7 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 //                        } else {
 //                            echo $this->Html->link("Logout",$logout,array('escape' => false));
 //                        }
-                        echo $connected == true ? $this->Html->link("Logout", array('controller' => 'users', 'action' => 'logout'), array('escape' => false)) : $this->Html->link("Login",array('controller' => 'users', 'action' => 'login'),array('escape' => false)); 
+//                        echo $connected == true ? $this->Html->link("Logout", array('controller' => 'users', 'action' => 'logout'), array('escape' => false)) : $this->Html->link("Login",array('controller' => 'users', 'action' => 'login'),array('escape' => false)); 
                         ?>
                         </h1>
 		</div>

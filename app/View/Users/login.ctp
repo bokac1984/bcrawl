@@ -1,9 +1,9 @@
 <?php
-echo $this->Html->link("LinkedIn",
-        array(
-            'controller'=>'users',
-            'action'=>'dashboard'
-        ), 
-        array('escape' => true)
-        );
+echo $this->Form->create('User', array('action' => 'login'));
+echo $this->Form->inputs(array(
+    'legend' => __('Login'),
+    'username',
+    'password'
+));
+echo $this->Form->end('Login');
 ?>
